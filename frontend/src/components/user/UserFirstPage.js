@@ -9,8 +9,8 @@ const EventsPage = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [notificationToken, setNotificationToken] = useState(null);
-  const [notificationPermission, setNotificationPermission] = useState(null);
+  // const [notificationToken, setNotificationToken] = useState(null);
+  // const [notificationPermission, setNotificationPermission] = useState(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -58,25 +58,25 @@ const EventsPage = () => {
   }, [user]);
 
   
-  useEffect(() => {
-    const updateUserToken = async () => {
-      if (!user || !notificationToken) return;
+  // useEffect(() => {
+  //   const updateUserToken = async () => {
+  //     if (!user || !notificationToken) return;
 
-      try {
-        await axios.put(`http://localhost:8080/api/auth/addtoken/${user._id}`, {
-          token: notificationToken,
-        });
-        console.log("Token added successfully!");
-      } catch (error) {
-        console.error(
-          "Error adding token:",
-          error.response?.data || error.message
-        );
-      }
-    };
+  //     try {
+  //       await axios.put(`http://localhost:8080/api/auth/addtoken/${user._id}`, {
+  //         token: notificationToken,
+  //       });
+  //       console.log("Token added successfully!");
+  //     } catch (error) {
+  //       console.error(
+  //         "Error adding token:",
+  //         error.response?.data || error.message
+  //       );
+  //     }
+  //   };
 
-    updateUserToken();
-  }, [user, notificationToken]);
+  //   updateUserToken();
+  // }, [user, notificationToken]);
 
   
   const handlePageChange = (newPage) => {
@@ -87,7 +87,7 @@ const EventsPage = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 pt-0">
    
-      {notificationPermission === "denied" && (
+      {/* {notificationPermission === "denied" && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -95,7 +95,7 @@ const EventsPage = () => {
         >
           Notifications are disabled. Some features may be limited.
         </motion.div>
-      )}
+      )} */}
 
       {loading && (
         <motion.div

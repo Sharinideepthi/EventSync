@@ -1,28 +1,28 @@
 const Event = require("../Models/Event");
 const User = require("../Models/User");
 
-const getDateRange = (timeframe) => {
-  const now = new Date();
-  let startDate = new Date();
+// const getDateRange = (timeframe) => {
+//   const now = new Date();
+//   let startDate = new Date();
 
-  switch (timeframe) {
-    case "week":
-      startDate.setDate(now.getDate() - 7);
-      break;
-    case "month":
-      startDate.setMonth(now.getMonth() - 1);
-      break;
-    case "quarter":
-      startDate.setMonth(now.getMonth() - 3);
-      break;
-    case "all":
-    default:
-      startDate = new Date(0);
-      break;
-  }
+//   switch (timeframe) {
+//     case "week":
+//       startDate.setDate(now.getDate() - 7);
+//       break;
+//     case "month":
+//       startDate.setMonth(now.getMonth() - 1);
+//       break;
+//     case "quarter":
+//       startDate.setMonth(now.getMonth() - 3);
+//       break;
+//     case "all":
+//     default:
+//       startDate = new Date(0);
+//       break;
+//   }
 
-  return { startDate, endDate: now };
-};
+//   return { startDate, endDate: now };
+// };
 
 exports.getDepartmentDistribution = async (req, res) => {
   try {
@@ -63,41 +63,41 @@ exports.getEventsData = async (req, res) => {
   }
 };
 
-exports.getUserGrowthData = async (req, res) => {
-  try {
-    const { timeframe } = req.query;
-    const { startDate, endDate } = getDateRange(timeframe);
+// exports.getUserGrowthData = async (req, res) => {
+//   try {
+//     const { timeframe } = req.query;
+//     const { startDate, endDate } = getDateRange(timeframe);
 
-    const userGrowthData = await User.aggregate([
-      { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-          newUsers: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ]);
+//     const userGrowthData = await User.aggregate([
+//       { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
+//       {
+//         $group: {
+//           _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+//           newUsers: { $sum: 1 },
+//         },
+//       },
+//       { $sort: { _id: 1 } },
+//     ]);
 
-    let cumulativeUsers = await User.countDocuments({
-      createdAt: { $lt: startDate },
-    });
+//     let cumulativeUsers = await User.countDocuments({
+//       createdAt: { $lt: startDate },
+//     });
 
-    const formattedData = userGrowthData.map((entry) => {
-      cumulativeUsers += entry.newUsers;
-      return {
-        date: entry._id,
-        newUsers: entry.newUsers,
-        users: cumulativeUsers,
-      };
-    });
+//     const formattedData = userGrowthData.map((entry) => {
+//       cumulativeUsers += entry.newUsers;
+//       return {
+//         date: entry._id,
+//         newUsers: entry.newUsers,
+//         users: cumulativeUsers,
+//       };
+//     });
 
-    res.json(formattedData);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to fetch user growth analytics" });
-  }
-};
+//     res.json(formattedData);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Failed to fetch user growth analytics" });
+//   }
+// };
 
 exports.getEventTypesDistribution = async (req, res) => {
   try {
@@ -113,62 +113,62 @@ exports.getEventTypesDistribution = async (req, res) => {
   }
 };
 
-exports.getEngagementData = async (req, res) => {
-  try {
-    const events = await Event.find({}).select(
-      "likedBy comments savedBy createdAt"
-    );
-    const engagementByDate = {};
+// exports.getEngagementData = async (req, res) => {
+//   try {
+//     const events = await Event.find({}).select(
+//       "likedBy comments savedBy createdAt"
+//     );
+//     const engagementByDate = {};
 
-    events.forEach((event) => {
-      const date = event.createdAt.toISOString().split("T")[0];
-      if (!engagementByDate[date])
-        engagementByDate[date] = { likes: 0, comments: 0, saves: 0 };
-      engagementByDate[date].likes += event.likedBy.length;
-      engagementByDate[date].comments += event.comments.length;
-      engagementByDate[date].saves += event.savedBy.length;
-    });
+//     events.forEach((event) => {
+//       const date = event.createdAt.toISOString().split("T")[0];
+//       if (!engagementByDate[date])
+//         engagementByDate[date] = { likes: 0, comments: 0, saves: 0 };
+//       engagementByDate[date].likes += event.likedBy.length;
+//       engagementByDate[date].comments += event.comments.length;
+//       engagementByDate[date].saves += event.savedBy.length;
+//     });
 
-    const engagementData = Object.keys(engagementByDate)
-      .map((date) => ({ date, ...engagementByDate[date] }))
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
+//     const engagementData = Object.keys(engagementByDate)
+//       .map((date) => ({ date, ...engagementByDate[date] }))
+//       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    res.json(engagementData);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to fetch engagement analytics" });
-  }
-};
+//     res.json(engagementData);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Failed to fetch engagement analytics" });
+//   }
+// };
 
-exports.getTopEvents = async (req, res) => {
-  try {
-    const topEvents = await Event.aggregate([
-      {
-        $project: {
-          name: 1,
-          attendance: { $size: "$attendance" },
-          responseBy: { $size: "$responseBy" },
-          attendanceRatio: {
-            $cond: {
-              if: { $gt: [{ $size: "$responseBy" }, 0] },
-              then: {
-                $divide: [{ $size: "$attendance" }, { $size: "$responseBy" }],
-              },
-              else: 0,
-            },
-          },
-        },
-      },
-      { $sort: { attendanceRatio: -1 } },
-      { $limit: 10 },
-    ]);
+// exports.getTopEvents = async (req, res) => {
+//   try {
+//     const topEvents = await Event.aggregate([
+//       {
+//         $project: {
+//           name: 1,
+//           attendance: { $size: "$attendance" },
+//           responseBy: { $size: "$responseBy" },
+//           attendanceRatio: {
+//             $cond: {
+//               if: { $gt: [{ $size: "$responseBy" }, 0] },
+//               then: {
+//                 $divide: [{ $size: "$attendance" }, { $size: "$responseBy" }],
+//               },
+//               else: 0,
+//             },
+//           },
+//         },
+//       },
+//       { $sort: { attendanceRatio: -1 } },
+//       { $limit: 10 },
+//     ]);
 
-    res.json(topEvents);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to fetch top events analytics" });
-  }
-};
+//     res.json(topEvents);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Failed to fetch top events analytics" });
+//   }
+// };
 
 exports.getUsersByDepartment = async (req, res) => {
   try {

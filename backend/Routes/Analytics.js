@@ -8,10 +8,10 @@ const {
 } = require("../Middlewares/Auth");
 router.get("/departments", isAdmin,analyticsController.getDepartmentDistribution);
 router.get("/events",isAdmin, analyticsController.getEventsData);
-router.get("/user-growth", isAdmin,analyticsController.getUserGrowthData);
+// router.get("/user-growth", isAdmin,analyticsController.getUserGrowthData);
 router.get("/event-types", isAdmin,analyticsController.getEventTypesDistribution);
-router.get("/engagement", isAdmin,analyticsController.getEngagementData);
-router.get("/top-events", isAdmin,analyticsController.getTopEvents);
+// router.get("/engagement", isAdmin,analyticsController.getEngagementData);
+// router.get("/top-events", isAdmin,analyticsController.getTopEvents);
 
 router.get("/", (req, res) => {
   if (req.query.department) {

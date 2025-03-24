@@ -19,10 +19,15 @@ const EventCard = ({ event, user, onEventUpdate }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedComments, setExpandedComments] = useState({});
   const [error, setError] = useState(null);
+  // Add a new state to track if comments have been loaded
+  const [commentsLoaded, setCommentsLoaded] = useState(false);
 
   useEffect(() => {
-    if (showComments) fetchComments();
-  }, [showComments]);
+    // Only fetch comments if they are not yet loaded and showComments is true
+    if (showComments && !commentsLoaded && event?._id) {
+      fetchComments();
+    }
+  }, [showComments, commentsLoaded, event?._id]);
 
   const fetchComments = async () => {
     if (!event?._id) return;
@@ -35,6 +40,8 @@ const EventCard = ({ event, user, onEventUpdate }) => {
         `${API_BASE_URL}/events/${event._id}/comments`
       );
       setComments(data || []);
+      // Mark comments as loaded after successful fetch
+      setCommentsLoaded(true);
     } catch (error) {
       console.error("Error fetching comments:", error);
       // setError("Failed to load comments. Please try again.");
@@ -82,6 +89,12 @@ const EventCard = ({ event, user, onEventUpdate }) => {
       );
       setError("Failed to post your comment. Please try again.");
     }
+  };
+
+  // Add a function to refresh comments if needed
+  const refreshComments = () => {
+    setCommentsLoaded(false); // Reset the loaded state
+    fetchComments(); // Fetch comments again
   };
 
   const toggleReadMore = () => {
@@ -237,6 +250,16 @@ const EventCard = ({ event, user, onEventUpdate }) => {
               disabled={!newComment.trim()}
             >
               Post
+            </button>
+          </div>
+
+          {/* Add refresh button for comments */}
+          <div className="flex justify-end mt-2">
+            <button
+              onClick={refreshComments}
+              className="text-blue-400 text-sm hover:underline"
+            >
+              Refresh comments
             </button>
           </div>
 
